@@ -17,12 +17,19 @@
                    <label for="nome">Nome completo</label>
                <br>
                <div class="inputBox">
-                   <input type="text" name="email" id="email" class="inputUser" required>
+                   <input type="email" name="email" id="email" class="inputUser" required>
                    <label for="email">E-mail</label>
                <br>
                <div class="inputBox">
-                   <input type="text" name="telefone" id="telefone" class="inputUser" required>
+                   <input type="tel" name="telefone" id="telefone" class="inputUser" required>
                    <label for="telefone">Telefone</label>
+                   <p>Sexo: </p>
+                   <input type="radio" id="feminino" name="genero" value="feminino" required>
+                   <label for="feminino">Feminino</label>
+                   <input type="radio" id="masculino" name="genero" value="masculino" required>
+                   <label for="masculino">Masculino</label>
+                   <input type="radio" id="outros" name="genero" value="outros" required>
+                   <label for="outros">Outros</label>
            </fieldset>
    </div>
 </body>
