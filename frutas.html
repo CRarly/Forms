@@ -23,7 +23,7 @@
             width: 80%;
             max-width: 400px;
             overflow-y: auto;
-            max-height: 500px; /* Defina a altura máxima desejada */
+            max-height: 700px; /* Defina a altura máxima desejada */
         }
 
         fieldset {
@@ -43,7 +43,7 @@
             color: white;
         }
 
-        .inputbox {
+        .inputBox {
             position: relative;
         }
 
@@ -53,6 +53,16 @@
             border-bottom: 1px solid white;
             outline: none;
             color: white;
+            font-size: 15px;
+            width: 100%;
+            letter-spacing: 2px;
+        }
+        .inputUser2 {
+            background: none;
+            border: none;
+            border-bottom: 1px solid dodgerblue;
+            outline: none;
+            color: dodgerblue;
             font-size: 15px;
             width: 100%;
             letter-spacing: 2px;
@@ -105,7 +115,7 @@
     <script>
         function buscarCidades() {
             var estado = document.getElementById('estado').value;
-            var url = `https://viacep.com.br/ws/${estado}/json/`;
+            var url = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estado}/municipios`;
 
             fetch(url)
                 .then(response => response.json())
@@ -115,8 +125,8 @@
 
                     for (var i = 0; i < data.length; i++) {
                         var option = document.createElement('option');
-                        option.text = data[i].localidade;
-                        option.value = data[i].localidade;
+                        option.text = data[i].nome;
+                        option.value = data[i].nome;
                         selectCidade.appendChild(option);
                     }
                 });
@@ -154,8 +164,8 @@
                <input type="date" name="data_nascimento" id="data_nascimento" required>
                <br><br><br>
                <div class="inputBox">
-                   <select name="estado" id="estado" class="inputUser" onchange="buscarCidades()" required>
-                       <option value="">Selecione o Estado</option>
+                   <select name="estado" id="estado" class="inputUser2" onchange="buscarCidades()" required>
+                       <option value="">Estado</option>
                        <option value="AC">Acre</option>
                        <option value="AL">Alagoas</option>
                        <option value="AP">Amapá</option>
@@ -184,14 +194,14 @@
                        <option value="SE">Sergipe</option>
                        <option value="TO">Tocantins</option>
                    </select>
-                   <label for="estado" class="labelInput">Estado</label>
-               </div>
+                   <label for="estado" class="labelInput"></label>
+               </div><br>
                <div class="inputBox">
-                   <select name="cidade" id="cidade" class="inputUser" required>
-                       <option value="">Selecione a Cidade</option>
+                   <select name="cidade" id="cidade" class="inputUser2" required>
+                       <option value="">Cidade</option>
                    </select>
-                   <label for="cidade" class="labelInput">Cidade</label>
-               </div>
+                   <label for="cidade" class="labelInput"></label>
+               </div><br>
                <div class="inputBox">
                    <input type="text" name="endereco" id="endereco" class="inputUser" required>
                    <label for="endereco" class="labelInput">Endereço</label>
