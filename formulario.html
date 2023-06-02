@@ -11,6 +11,7 @@
             background-image: linear-gradient(to right, rgb(20, 147, 220), rgb(17, 54,71));
         }
         .box{
+            color: white;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -18,11 +19,45 @@
             background-color: rgba(0, 0, 0, 0.6);
             padding: 15px;
             border-radius: 15px;
-            width: 25%;
+            width: 20%;
         }
         fieldset{
             border: 3px solid dodgerblue;
             border-radius: 15px;
+        }
+        legend{
+            border: 1px solid dodgerblue;
+            padding: 10px;
+            text-align: center;
+            background-color: dodgerblue;
+            border-radius: 8px;
+           
+        }
+        .inputbox{
+            position: relative;
+        }
+        .inputUser{
+            backgroud: none;
+            border: none;
+            border-botton: 1px solid white;
+            outline: none;
+            color: white;
+            font-size: 15px;
+            widht: 100%;
+            letter-spacing: 2px;            
+        }
+        .labelInput{
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            pointer-events: none;
+            transition: 5px;            
+        }
+        .inputUser:focus ~ .labelInput,
+        .inputUser:valid ~ .labelInput {
+            font-size: 12px;
+            top: -20px;
+            color: dodgerblue;
         }
     </style>
 </head>
@@ -34,15 +69,15 @@
                <br><br>
                <div class="inputBox">
                    <input type="text" name="nome" id="nome" class="inputUser" required>
-                   <label for="nome">Nome completo</label>
+                   <label for="nome" class="labelInput">Nome completo</label>
                <br><br>
                <div class="inputBox">
                    <input type="email" name="email" id="email" class="inputUser" required>
-                   <label for="email">E-mail</label>
+                   <label for="email" class="labelInput">E-mail</label>
                <br><br>
                <div class="inputBox">
                    <input type="tel" name="telefone" id="telefone" class="inputUser" required>
-                   <label for="telefone">Telefone</label>
+                   <label for="telefone" class="labelInput">Telefone</label>
                    <p>Sexo: </p>
                    <input type="radio" id="feminino" name="genero" value="feminino" required>
                    <label for="feminino">Feminino</label>
@@ -57,15 +92,15 @@
                <br><br>    
                <div class="inputBox">
                    <input type="text" name="cidade" id="cidade" class="inputUser" required>
-                   <label for="cidade">Cidade</label>
+                   <label for="cidade" class="labelInput">Cidade</label>
                <br><br>
                <div class="inputBox">
                    <input type="text" name="estado" id="estado" class="inputUser" required>
-                   <label for="estado">Estado</label>
+                   <label for="estado" class="labelInput">Estado</label>
                <br><br>
                <div class="inputBox">
                    <input type="text" name="endereco" id="endereco" class="inputUser" required>
-                   <label for="endereco">Endereço</label>
+                   <label for="endereco" class="labelInput">Endereço</label>
                <br><br>
                <input type="submit" name="submit" id="submit">
            </fieldset>
