@@ -47,8 +47,8 @@
             letter-spacing: 2px;            
         }
         .labelInput{
-            position: absolute;
-            top: 0px;
+            position: relative;
+            top: -20px;
             left: 0px;
             pointer-events: none;
             transition: .5s;            
@@ -56,7 +56,7 @@
         .inputUser:focus ~ .labelInput,
         .inputUser:valid ~ .labelInput {
             font-size: 12px;
-            top: -20px;
+            top: -40px;
             color: dodgerblue;
         }
     </style>
@@ -72,7 +72,7 @@
                    <label for="nome" class="labelInput">Nome completo</label>
                <br><br>
                <div class="inputBox">
-                   <input type="email" name="email" id="email" class="inputUser" required>
+                   <input type="text" name="email" id="email" class="inputUser" required>
                    <label for="email" class="labelInput">E-mail</label>
                <br><br>
                <div class="inputBox">
@@ -88,7 +88,7 @@
                <br><br>
                <div class="inputBox">
                    <label for="data_nascimento"><b>Data de Nasciento: </b></label>
-                   <input type="date" name="data_nascimento" id="data_nascimento" class="inputUser" required>
+                   <input type="date" name="data_nascimento" id="data_nascimento" class="inputUser" required pointer-events: none>
                <br><br>    
                <div class="inputBox">
                    <input type="text" name="cidade" id="cidade" class="inputUser" required>
