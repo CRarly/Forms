@@ -6,12 +6,12 @@ $dbName = 'id18425865_db_dre_projetada';
 
 $conexao = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName)
 
-  if($conexao->connect_errno)
-  {
-    echo "Erro";
-  }
-  else
-  {
-    echo "Conexão efetuada com sucesso";
-  }
+// if($conexao->connect_errno)
+// {
+//   echo "Erro";
+// }
+// else
+// {
+//   echo "Conexão efetuada com sucesso";
+// }
 ?>
