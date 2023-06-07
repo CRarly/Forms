@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Próximo Dólar daqui a:</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: "Arial", sans-serif;
+      background-color: #f9f9f9;
+    }
+    
+    h1 {
+      font-size: 60px;
+      text-align: center;
+      color: #333;
+    }
+    
+    #counter {
+      font-size: 40px;
+      text-align: center;
+      color: #555;
+    }
+  </style>
+  <script>
+    function countdown() {
+      var now = new Date();
+      var target = new Date();
+      
+      // Define a próxima data-alvo como o próximo dia primeiro às 15:00
+      target.setMonth(target.getMonth() + 1); // Próximo mês
+      target.setDate(1); // Dia primeiro
+      target.setHours(15, 0, 0, 0); // 15:00
+      
+      // Calcula a diferença entre as datas
+      var difference = target - now;
+      
+      // Converte a diferença em dias, horas, minutos e segundos
+      var days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      var seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      
+      // Atualiza o contador na página
+      document.getElementById("counter").innerHTML = days + " dias, " + hours + " horas, " + minutes + " minutos, " + seconds + " segundos";
+    }
+    
+    // Chama a função de contagem regressiva a cada segundo
+    setInterval(countdown, 1000);
+  </script>
+</head>
+<body>
+  <h1>Próximo Dólar daqui a:</h1>
+  <p id="counter"></p>
+</body>
+</html>
