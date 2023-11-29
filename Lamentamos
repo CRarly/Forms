@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manutenção em Andamento</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        #maintenance-image {
+            max-width: 100%;
+            height: auto;
+            margin-top: 50px;
+        }
+
+        #maintenance-text {
+            color: #555;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Em Manutenção</h1>
+    <img id="maintenance-image" src="https://www.xiquexique.ba.leg.br/imagens/trabalhando.gif/image" alt="Imagem de Manutenção">
+    <p id="maintenance-text">Esta parte da aplicação ainda está em desenvolvimento. Lamentamos o transtorno.</p>
+</body>
+</html>	
