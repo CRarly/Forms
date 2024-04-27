@@ -55,12 +55,18 @@
         </select>
 
         <label for="saladas">Saladas:</label>
-        <select id="saladas" name="saladas" multiple>
-            <option value="Tomate">Tomate</option>
-            <option value="Repolho">Repolho</option>
-            <option value="Alface">Alface</option>
-            <option value="Vinagrete">Vinagrete</option>
-        </select>
+        <div id="saladas">
+            <input type="checkbox" id="tomate" name="tomate" value="Tomate">
+            <label for="tomate">Tomate</label><br>
+            <input type="checkbox" id="repolho" name="repolho" value="Repolho">
+            <label for="repolho">Repolho</label><br>
+            <input type="checkbox" id="alface" name="alface" value="Alface">
+            <label for="alface">Alface</label><br>
+            <input type="checkbox" id="vinagrete" name="vinagrete" value="Vinagrete">
+            <label for="vinagrete">Vinagrete</label><br>
+            <input type="checkbox" id="cebola" name="cebola" value="Cebola">
+            <label for="cebola">Cebola</label><br>
+        </div>
 
         <label for="proteinas">Proteínas:</label>
         <select id="proteinas" name="proteinas">
@@ -79,6 +85,7 @@
             <option value="Picado">Picado</option>
             <option value="Cubos">Cubos</option>
             <option value="Salada">Salada</option>
+            <option value="Peça">Peça</option>
         </select>
 
         <label for="preparo">Preparo:</label>
@@ -90,28 +97,29 @@
             <option value="Frito">Frito</option>
         </select>
 
+        <label for="legumes_verduras">Legumes/Verduras:</label>
+        <div id="legumes_verduras">
+            <input type="checkbox" id="abobrinha" name="abobrinha" value="Abobrinha">
+            <label for="abobrinha">Abobrinha</label><br>
+            <input type="checkbox" id="abobora" name="abobora" value="Abóbora">
+            <label for="abobora">Abóbora</label><br>
+            <input type="checkbox" id="inhame" name="inhame" value="Inhame">
+            <label for="inhame">Inhame</label><br>
+            <input type="checkbox" id="mandioca" name="mandioca" value="Mandioca">
+            <label for="mandioca">Mandioca</label><br>
+            <input type="checkbox" id="nenhum_legume_verdura" name="nenhum_legume_verdura" value="Nenhum">
+            <label for="nenhum_legume_verdura">Nenhum</label><br>
+        </div>
+
         <label for="juntoCarboidratos">Junto com os carboidratos:</label>
         <input type="checkbox" id="juntoCarboidratos" name="juntoCarboidratos">
 
-        <button onclick="gerarPDF()">Gerar PDF</button>
+        <button onclick="imprimir()">Imprimir</button>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script>
-        function gerarPDF() {
-            const data = document.getElementById('data').value;
-            const carboidratos = document.getElementById('carboidratos').value;
-            const saladas = [...document.getElementById('saladas').selectedOptions].map(option => option.value).join(', ');
-            const proteinas = document.getElementById('proteinas').value;
-            const corte = document.getElementById('corte').value;
-            const preparo = document.getElementById('preparo').value;
-            const juntoCarboidratos = document.getElementById('juntoCarboidratos').checked;
-
-            const mensagem = `Cardápio do Dia:\nData: ${data}\nCarboidratos: ${carboidratos}\nSaladas: ${saladas}\nProteínas: ${proteinas} (${corte}, ${preparo}${juntoCarboidratos ? ', junto com os carboidratos' : ''})`;
-
-            const doc = new jsPDF();
-            doc.text(mensagem, 10, 10);
-            doc.save('cardapio_do_dia.pdf');
+        function imprimir() {
+            window.print();
         }
     </script>
 </body>
