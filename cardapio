@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio do Dia</title>
+</head>
+<body>
+    <button onclick="criarEvento()">Adicionar ao Google Agenda</button>
+
+    <script>
+        function criarEvento() {
+            const data = document.getElementById('data').value;
+            const carboidratos = document.getElementById('carboidratos').value;
+            const saladas = [...document.getElementById('saladas').selectedOptions].map(option => option.value).join(', ');
+            const proteinas = document.getElementById('proteinas').value;
+            const corte = document.getElementById('corte').value;
+            const preparo = document.getElementById('preparo').value;
+            const juntoCarboidratos = document.getElementById('juntoCarboidratos').checked;
+
+            const mensagem = `Cardápio do Dia:\nData: ${data}\nCarboidratos: ${carboidratos}\nSaladas: ${saladas}\nProteínas: ${proteinas} (${corte}, ${preparo}${juntoCarboidratos ? ', junto com os carboidratos' : ''})`;
+
+            // Requisição para adicionar o evento ao Google Agenda
+            gapi.load('client:auth2', () => {
+                gapi.client.init({
+                    apiKey: 'SUA_API_KEY',
+                    clientId: 'SEU_CLIENT_ID',
+                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
+                    scope: 'https://www.googleapis.com/auth/calendar.events'
+                }).then(() => {
+                    return gapi.auth2.getAuthInstance().signIn();
+                }).then(() => {
+                    const event = {
+                        'summary': 'Cardápio do Dia',
+                        'description': mensagem,
+                        'start': {
+                            'date': data
+                        },
+                        'end': {
+                            'date': data
+                        }
+                    };
+
+                    return gapi.client.calendar.events.insert({
+                        'calendarId': 'primary',
+                        'resource': event
+                    });
+                }).then(response => {
+                    console.log('Evento adicionado:', response);
+                    alert('Evento adicionado ao Google Agenda com sucesso!');
+                }).catch(error => {
+                    console.error('Erro ao adicionar evento:', error);
+                    alert('Erro ao adicionar evento ao Google Agenda. Verifique o console para mais detalhes.');
+                });
+            });
+        }
+    </script>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+</body>
+</html>
