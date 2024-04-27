@@ -109,14 +109,10 @@
 
             const mensagem = `Cardápio do Dia:\nData: ${data}\nCarboidratos: ${carboidratos}\nSaladas: ${saladas}\nProteínas: ${proteinas} (${corte}, ${preparo}${juntoCarboidratos ? ', junto com os carboidratos' : ''})`;
 
-            gapi.load('client:auth2', () => {
+            gapi.load('client', () => {
                 gapi.client.init({
-                    apiKey: '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',
-                    clientId: '784860744108-k3qqb39egfebrqakbnad4g3o2h6bhbtn.apps.googleusercontent.com',
+                    key=AIzaSyB8bVETtnae1CsXcrLtCzuZo_YXbPY-BWg,
                     discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
-                    scope: 'https://www.googleapis.com/auth/calendar.events'
-                }).then(() => {
-                    return gapi.auth2.getAuthInstance().signIn();
                 }).then(() => {
                     const event = {
                         'summary': 'Cardápio do Dia',
