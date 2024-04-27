@@ -4,10 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cardápio do Dia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="date"], select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <button onclick="criarEvento()">Adicionar ao Google Agenda</button>
+    <div class="container">
+        <h2>Cardápio do Dia</h2>
+        <label for="data">Data:</label>
+        <input type="date" id="data" name="data">
 
+        <label for="carboidratos">Carboidratos:</label>
+        <select id="carboidratos" name="carboidratos">
+            <option value="Arroz">Arroz</option>
+            <option value="Batata">Batata</option>
+            <option value="Macarrão">Macarrão</option>
+            <option value="Tubérculos">Tubérculos</option>
+            <option value="Panqueca">Panqueca</option>
+            <option value="Omelete">Omelete</option>
+        </select>
+
+        <label for="saladas">Saladas:</label>
+        <select id="saladas" name="saladas" multiple>
+            <option value="Tomate">Tomate</option>
+            <option value="Repolho">Repolho</option>
+            <option value="Alface">Alface</option>
+            <option value="Vinagrete">Vinagrete</option>
+        </select>
+
+        <label for="proteinas">Proteínas:</label>
+        <select id="proteinas" name="proteinas">
+            <option value="Peixe">Peixe</option>
+            <option value="Ovo">Ovo</option>
+            <option value="Porco">Porco</option>
+            <option value="Boi">Boi</option>
+            <option value="Camarão">Camarão</option>
+            <option value="Frango">Frango</option>
+        </select>
+
+        <label for="corte">Corte/Tipo:</label>
+        <select id="corte" name="corte">
+            <option value="Linguiça">Linguiça</option>
+            <option value="Filé">Filé</option>
+            <option value="Picado">Picado</option>
+            <option value="Cubos">Cubos</option>
+            <option value="Salada">Salada</option>
+        </select>
+
+        <label for="preparo">Preparo:</label>
+        <select id="preparo" name="preparo">
+            <option value="Cozido">Cozido</option>
+            <option value="Assado">Assado</option>
+            <option value="Refogado">Refogado</option>
+            <option value="Estrogonofe">Estrogonofe</option>
+            <option value="Frito">Frito</option>
+        </select>
+
+        <label for="juntoCarboidratos">Junto com os carboidratos:</label>
+        <input type="checkbox" id="juntoCarboidratos" name="juntoCarboidratos">
+
+        <button onclick="criarEvento()">Adicionar ao Google Agenda</button>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
     <script>
         function criarEvento() {
             const data = document.getElementById('data').value;
@@ -20,11 +109,10 @@
 
             const mensagem = `Cardápio do Dia:\nData: ${data}\nCarboidratos: ${carboidratos}\nSaladas: ${saladas}\nProteínas: ${proteinas} (${corte}, ${preparo}${juntoCarboidratos ? ', junto com os carboidratos' : ''})`;
 
-            // Requisição para adicionar o evento ao Google Agenda
             gapi.load('client:auth2', () => {
                 gapi.client.init({
-                    apiKey: 'SUA_API_KEY',
-                    clientId: 'SEU_CLIENT_ID',
+                    apiKey: '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',
+                    clientId: '784860744108-k3qqb39egfebrqakbnad4g3o2h6bhbtn.apps.googleusercontent.com',
                     discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
                     scope: 'https://www.googleapis.com/auth/calendar.events'
                 }).then(() => {
@@ -55,7 +143,5 @@
             });
         }
     </script>
-
-    <script src="https://apis.google.com/js/api.js"></script>
 </body>
 </html>
