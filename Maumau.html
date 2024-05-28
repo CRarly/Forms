@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking de Mau-Mau</title>
+  <!-- Incluindo Bootstrap CSS para estilos -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #1a1a1a; /* Fundo escuro */
+      color: #0056b3; /* Texto claro */
+    }
+    h1, h2 {
+      font-size: 24px;
+      color: #ffd700; /* Amarelo ouro */
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* Sombra para destacar */
+    }
+    input, button {
+      margin-bottom: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      background-color: #007bff; /* Azul */
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 12px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
+    }
+    button:hover {
+      background-color: #0056b3; /* Azul escuro ao passar o mouse */
+    }
+    .hidden {
+      display: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: #D3D3D3;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .pontuacao-ausente {
+      color: red;
+      font-weight: bold;
+    }
+    #home, #game, #dashboard {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #1a1a1a; /* Fundo escuro */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    #home label, #game label, #dashboard label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 18px;
+      color: #ffd700; /* Amarelo ouro */
+    }
+    ul {
+      padding: 0;
+      list-style-type: none;
+    }
+    ul li {
+      margin-bottom: 5px;
+      font-size: 18px;
+    }
+
+    /* Animações e estilos adicionais para temática de jogo de cartas */
+    .card {
+      background-color: #343a40; /* Fundo das cartas (cinza escuro) */
+      color: #fff; /* Texto das cartas (branco) */
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: scale(1.05); /* Efeito de zoom ao passar o mouse */
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+    }
+    .card-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .card-content {
+      font-size: 18px;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)); /* Gradiente sobre a carta */
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .card:hover::before {
+      opacity: 1; /* Mostra o gradiente ao passar o mouse */
+    }
+    .card-body {
+      position: relative;
+      z-index: 2;
+    }
+    .card-img-top {
+      width: 100%;
+      border-radius: 10px 10px 0 0;
+    }
+    .card-footer {
+      background-color: #343a40; /* Fundo do rodapé da carta */
+      padding: 10px;
+      text-align: right;
+      border-radius: 0 0 10px 10px;
+    }
+    .card-footer a {
+      color: #ffd700; /* Cor do link no rodapé da carta */
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .card-footer a:hover {
+      color: #fff; /* Cor do link ao passar o mouse */
+    }
+  </style>
+</head>
+<body>
+  <div id="home">
+    <h1 class="display-4">Iniciar Jogo de Cartas</h1>
+    <div class="mb-3">
+      <label for="dataInput" class="form-label">Data do Jogo:</label>
+      <input type="date" id="dataInput" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label for="jogadorInput" class="form-label">Adicionar Jogadores:</label>
+      <input type="text" id="jogadorInput" class="form-control" placeholder="Nome do jogador">
+    </div>
+    <button class="btn btn-primary mb-3" onclick="adicionarJogador()">Adicionar Jogador</button>
+    <ul id="jogadoresList" class="list-group mb-3"></ul>
+    <button class="btn btn-success me-3" onclick="iniciarJogo()">Iniciar Jogo</button>
+    <button class="btn btn-warning me-3" onclick="gerarRankingSemanal()">Gerar Ranking Semanal</button>
+  </div>
+  <div id="game" class="hidden">
+    <h1 class="display-4">Jogo em Andamento</h1>
+    <div id="jogadoresPontuacao"></div>
+    <button class="btn btn-primary me-3" onclick="adicionarRodada()">Nova Rodada</button>
+    <button class="btn btn-warning me-3" onclick="adicionarNovoJogador()">Adicionar Novo Jogador</button>
+    <button class="btn btn-danger me-3" onclick="finalizarJogo()">Finalizar Jogo</button>
+    <h2 class="mt-4">Dados das Rodadas</h2>
+    <div id="dadosRodadas"></div>
+    <h2 class="mt-4">Ranking Parcial</h2>
+    <div id="rankingParcial"></div>
+  </div>
+  <div id="dashboard" class="hidden">
+    <h1 class="display-4">Ranking Final</h1>
+    <table id="rankingTable" class="table table-striped table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Classificação</th>
+          <th>Jogador</th>
+          <th>Pontuação Total</th>
+        </tr>
+      </thead>
+      <tbody id="rankingBody">
+      </tbody>
+    </table>
+    <button class="btn btn-success me-3" onclick="salvarRanking()">Salvar Ranking</button>
+    <button class="btn btn-secondary" onclick="location.reload()">Recarregar e Novo Jogo</button>
+  </div>
+
+  <!-- Incluindo Bootstrap JS para funcionalidades -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let jogoId;
+    let jogadores = [];
+    let rodadas = [];
+    let pontuacoes = [];
+    let ranking = [];
+
+    function adicionarJogador() {
+      const jogadorInput = document.getElementById('jogadorInput');
+      const jogadorNome = jogadorInput.value.trim();
+      if (jogadorNome) {
+        jogadores.push(jogadorNome);
+        jogadorInput.value = '';
+        atualizarListaJogadores();
+      }
+    }
+
+    function atualizarListaJogadores() {
+  const jogadoresList = document.getElementById('jogadoresList');
+  jogadoresList.innerHTML = ''; // Limpa a lista atual de jogadores
+
+  // Percorre o array de jogadores e adiciona cada um à lista
+  jogadores.forEach((jogador, index) => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+    li.textContent = jogador;
+
+    // Botão para remover jogador
+    const button = document.createElement('button');
+    button.className = 'btn btn-sm btn-danger';
+    button.textContent = 'Remover';
+    button.onclick = () => removerJogador(index); // Chama a função para remover jogador
+
+    // Adiciona o botão à lista de jogadores
+    li.appendChild(button);
+    jogadoresList.appendChild(li);
+  });
+}
+    function removerJogador(index) {
+  jogadores.splice(index, 1); // Remove o jogador do array 'jogadores' na posição 'index'
+  atualizarListaJogadores(); // Atualiza a lista de jogadores na interface
+}
+
+
+    
+
+    function iniciarJogo() {
+      const dataInput = document.getElementById('dataInput').value;
+      if (dataInput && jogadores.length > 0) {
+        jogoId = Date.now().toString();
+        document.getElementById('home').classList.add('hidden');
+        document.getElementById('game').classList.remove('hidden');
+        atualizarJogadoresPontuacao();
+      } else {
+        alert('Por favor, insira uma data e adicione pelo menos um jogador.');
+      }
+    }
+
+    function atualizarJogadoresPontuacao() {
+      const jogadoresPontuacaoDiv = document.getElementById('jogadoresPontuacao');
+      jogadoresPontuacaoDiv.innerHTML = '';
+      pontuacoes = jogadores.map(jogador => ({ jogadorId: jogador, pontuacoes: [], ausente: false }));
+      pontuacoes.forEach((p, index) => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label>${p.jogadorId}</label>
+          <input type="number" value="0" min="0" onchange="atualizarPontuacao(${index}, this.value)" ${p.novo ? 'disabled' : ''}>
+          <input type="checkbox" onchange="marcarAusente(${index}, this.checked)" ${p.novo ? 'disabled' : ''}> Ausente
+        `;
+        jogadoresPontuacaoDiv.appendChild(div);
+      });
+    }
+
+    function atualizarPontuacao(index, value) {
+      const rodadaAtual = rodadas.length + 1;
+      const pontuacao = parseInt(value, 10) || 0;
+
+      if (!pontuacoes[index].pontuacoes[rodadaAtual]) {
+        pontuacoes[index].pontuacoes[rodadaAtual] = {};
+      }
+      pontuacoes[index].pontuacoes[rodadaAtual].pontuacao = pontuacao;
+
+      mostrarDadosRodadas();
+      mostrarRankingParcial();
+    }
+
+    function marcarAusente(index, ausente) {
+      const rodadaAtual = rodadas.length + 1;
+
+      if (!pontuacoes[index].pontuacoes[rodadaAtual]) {
+        pontuacoes[index].pontuacoes[rodadaAtual] = {};
+      }
+      pontuacoes[index].pontuacoes[rodadaAtual].ausente = ausente;
+
+      mostrarDadosRodadas();
+      mostrarRankingParcial();
+    }
+
+function adicionarRodada() {
+  const rodadaAtual = rodadas.length + 1;
+
+  let maiorPontuacaoRodada = 0;
+  pontuacoes.forEach((p, index) => {
+    const pontuacaoRodada = p.pontuacoes[rodadaAtual]?.pontuacao || 0;
+    if (pontuacaoRodada > maiorPontuacaoRodada) {
+      maiorPontuacaoRodada = pontuacaoRodada;
+    }
+  });
+
+  pontuacoes.forEach((p, index) => {
+    const pontuacaoRodada = p.pontuacoes[rodadaAtual]?.pontuacao || 0;
+    const ausente = p.pontuacoes[rodadaAtual]?.ausente;
+
+    if (ausente) {
+      const penalidade = maiorPontuacaoRodada + jogadores.length - 1;
+      p.pontuacoes[rodadaAtual].pontuacao = penalidade;
+    }
+    p.novo = false; // Atualiza para permitir inserir dados na próxima rodada
+  });
+
+  rodadas.push([...pontuacoes]);
+  limparInputsPontuacao();
+  mostrarDadosRodadas();
+  mostrarRankingParcial();
+}
+
+
+    function limparInputsPontuacao() {
+      const jogadoresPontuacaoDiv = document.getElementById('jogadoresPontuacao');
+      jogadoresPontuacaoDiv.querySelectorAll('input[type="number"]').forEach(input => {
+        input.value = '0';
+      });
+      jogadoresPontuacaoDiv.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+      });
+    }
+
+    function mostrarDadosRodadas() {
+      const dadosRodadasDiv = document.getElementById('dadosRodadas');
+      dadosRodadasDiv.innerHTML = '';
+
+      const headerHtml = `<thead><tr><th>Rodada</th>${jogadores.map(jogador => `<th>${jogador}</th>`).join('')}</tr></thead>`;
+      const bodyHtml = `<tbody>${rodadas.map((rodada, index) => {
+        return `<tr><td>${index + 1}</td>${jogadores.map(jogador => {
+          const pontuacao = rodada.find(p => p.jogadorId === jogador)?.pontuacoes[index + 1]?.pontuacao || '-';
+          const classeAusente = rodada.find(p => p.jogadorId === jogador)?.pontuacoes[index + 1]?.ausente ? ' class="pontuacao-ausente"' : '';
+          return `<td${classeAusente}>${pontuacao}</td>`;
+        }).join('')}</tr>`;
+      }).join('')}</tbody>`;
+
+      const tableHtml = `<table>${headerHtml}${bodyHtml}</table>`;
+      dadosRodadasDiv.innerHTML = tableHtml;
+    }
+
+    function mostrarRankingParcial() {
+      const rankingParcialDiv = document.getElementById('rankingParcial');
+      rankingParcialDiv.innerHTML = '';
+
+      const pontosJogadores = {};
+
+      rodadas.forEach((rodada, index) => {
+        rodada.forEach(p => {
+          const jogador = p.jogadorId;
+          const pontuacaoRodada = p.pontuacoes[index + 1]?.pontuacao || 0;
+          if (!pontosJogadores[jogador]) {
+            pontosJogadores[jogador] = 0;
+          }
+          pontosJogadores[jogador] += pontuacaoRodada;
+        });
+      });
+
+      ranking = Object.keys(pontosJogadores).map(jogador => ({
+        jogador: jogador,
+        pontuacao: pontosJogadores[jogador]
+      }));
+
+      ranking.sort((a, b) => a.pontuacao - b.pontuacao);
+
+      const rankingHtml = `
+        <table>
+          <thead><tr><th>Classificação</th><th>Jogador</th><th>Pontuação Total</th></tr></thead>
+          <tbody>
+            ${ranking.map((item, index) => `<tr><td>${index + 1}</td><td>${item.jogador}</td><td>${item.pontuacao}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      `;
+
+      rankingParcialDiv.innerHTML = rankingHtml;
+    }
+
+function adicionarNovoJogador() {
+  const jogadorNome = prompt('Digite o nome do novo jogador:');
+  if (jogadorNome) {
+    const ultimaPontuacao = ranking.length > 0 ? ranking[ranking.length - 1].pontuacao : 0;
+
+    jogadores.push(jogadorNome);
+    pontuacoes.push({ jogadorId: jogadorNome, pontuacoes: [], ausente: false, novo: true });
+
+    atualizarListaJogadores();
+    atualizarJogadoresPontuacao();
+
+    const rodadaAtual = rodadas.length + 1;
+    const novoJogadorIndex = pontuacoes.findIndex(p => p.jogadorId === jogadorNome);
+    pontuacoes[novoJogadorIndex].pontuacoes[rodadaAtual] = { pontuacao: ultimaPontuacao + 1, ausente: false };
+
+    // Atualiza os inputs de pontuação para refletir a pontuação inicial
+    const jogadorInputIndex = jogadores.findIndex(jogador => jogador === jogadorNome);
+    const inputPontuacao = document.querySelectorAll('#jogadoresPontuacao input[type="number"]');
+    inputPontuacao[jogadorInputIndex].value = ultimaPontuacao + 1;
+
+    // Mostra uma mensagem com a pontuação inicial do novo jogador
+    alert(`${jogadorNome} foi adicionado com a pontuação inicial de ${ultimaPontuacao + 1}.`);
+
+    mostrarDadosRodadas();
+    mostrarRankingParcial();
+  }
+}
+
+
+    function finalizarJogo() {
+      adicionarRodada();
+
+      ranking.sort((a, b) => a.pontuacao - b.pontuacao);
+
+      const rankingBody = document.getElementById('rankingBody');
+      rankingBody.innerHTML = '';
+
+      ranking.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.jogador}</td>
+          <td>${item.pontuacao}</td>
+        `;
+        rankingBody.appendChild(tr);
+      });
+
+      document.getElementById('game').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+    }
+
+    function salvarRanking() {
+      const dados = [];
+
+      ranking.forEach((item, index) => {
+        dados.push([index + 1, item.jogador, item.pontuacao]);
+      });
+
+      const hoje = new Date().toISOString().slice(0, 10);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + dados.map(e => e.join(',')).join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `ranking_${hoje}.csv`);
+      document.body.appendChild(link);
+      link.click();
+    }
+
+    function gerarRankingSemanal() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.csv';
+      input.multiple = true;
+      input.onchange = function(event) {
+        const files = event.target.files;
+        const promises = [];
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const promise = new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const conteudo = e.target.result;
+              const linhas = conteudo.trim().split('\n').map(linha => linha.split(','));
+
+              const rankingSemanal = linhas.map(linha => ({
+                jogador: linha[1],
+                pontuacao: parseInt(linha[2], 10) || 0
+              }));
+
+              resolve(rankingSemanal);
+            };
+            reader.readAsText(file);
+          });
+          promises.push(promise);
+        }
+
+        Promise.all(promises).then(rankingSemanalArray => {
+          const rankingSemanalFinal = {};
+
+          rankingSemanalArray.forEach(rankingSemanal => {
+            rankingSemanal.forEach(item => {
+              const jogador = item.jogador;
+              const pontuacao = item.pontuacao;
+
+              if (!rankingSemanalFinal[jogador]) {
+                rankingSemanalFinal[jogador] = 0;
+              }
+              rankingSemanalFinal[jogador] += pontuacao;
+            });
+          });
+
+          const rankingSemanalOrdenado = Object.keys(rankingSemanalFinal).map(jogador => ({
+            jogador: jogador,
+            pontuacao: rankingSemanalFinal[jogador]
+          }));
+
+          rankingSemanalOrdenado.sort((a, b) => a.pontuacao - b.pontuacao);
+
+          atualizarRankingSemanal(rankingSemanalOrdenado);
+        });
+      };
+      input.click();
+    }
+
+    function atualizarRankingSemanal(rankingSemanal) {
+      const rankingBody = document.getElementById('rankingBody');
+      rankingBody.innerHTML = '';
+
+      rankingSemanal.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.jogador}</td>
+          <td>${item.pontuacao}</td>
+        `;
+        rankingBody.appendChild(tr);
+      });
+
+      document.getElementById('home').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
