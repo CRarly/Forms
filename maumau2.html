@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking de Mau-Mau com Salas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #1a1a1a;
+      color: #ffd700;
+    }
+    h1, h2 {
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin-top: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+    #home, #game, #dashboard {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Tela inicial para escolher ou criar uma sala -->
+  <div id="home">
+    <h1 class="display-4">Escolha ou Crie uma Sala de Jogo</h1>
+    <div class="mb-3">
+      <label for="novaSalaInput" class="form-label">Criar Nova Sala:</label>
+      <input type="text" id="novaSalaInput" class="form-control" placeholder="Nome da nova sala">
+      <button class="btn btn-primary" onclick="criarSala()">Criar Sala</button>
+    </div>
+    <div class="mb-3">
+      <label for="salaSelect" class="form-label">Escolher Sala Existente:</label>
+      <select id="salaSelect" class="form-select"></select>
+      <button class="btn btn-success" onclick="entrarSala()">Entrar na Sala</button>
+    </div>
+  </div>
+
+  <!-- Tela de jogo dentro de uma sala -->
+  <div id="game" class="hidden">
+    <h2 class="display-4">Sala: <span id="nomeSala"></span></h2>
+    <div class="mb-3">
+      <label for="dataInput" class="form-label">Data do Jogo:</label>
+      <input type="date" id="dataInput" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label for="jogadorInput" class="form-label">Adicionar Jogadores:</label>
+      <input type="text" id="jogadorInput" class="form-control" placeholder="Nome do jogador">
+      <button class="btn btn-primary" onclick="adicionarJogador()">Adicionar Jogador</button>
+    </div>
+    <ul id="jogadoresList" class="list-group mb-3"></ul>
+    <button class="btn btn-success me-3" onclick="iniciarJogo()">Iniciar Jogo</button>
+  </div>
+
+  <!-- Tela para adicionar pontuações por rodada e visualizar ranking -->
+  <div id="dashboard" class="hidden">
+    <h1 class="display-4">Pontuações e Ranking da Sala: <span id="rankingSala"></span></h1>
+    <div id="rodadaPontuacao"></div>
+    <button class="btn btn-primary me-3" onclick="adicionarRodada()">Nova Rodada</button>
+    <button class="btn btn-danger me-3" onclick="finalizarJogo()">Finalizar Jogo</button>
+
+    <h2 class="mt-4">Ranking Parcial</h2>
+    <table id="rankingTable" class="table table-striped table-bordered">
+      <thead class="table-light">
+        <tr><th>Classificação</th><th>Jogador</th><th>Pontuação Total</th></tr>
+      </thead>
+      <tbody id="rankingBody"></tbody>
+    </table>
+    <button class="btn btn-secondary" onclick="sairSala()">Sair da Sala</button>
+  </div>
+
+  <script>
+    let salas = {};
+    let salaAtual = null;
+    let jogadores = [];
+    let ranking = [];
+    let rodadas = [];
+
+    function criarSala() {
+      const novaSala = document.getElementById('novaSalaInput').value.trim();
+      if (novaSala && !salas[novaSala]) {
+        salas[novaSala] = { jogadores: [], ranking: [], rodadas: [] };
+        atualizarSelectSalas();
+        alert(`Sala "${novaSala}" criada com sucesso!`);
+      }
+    }
+
+    function entrarSala() {
+      const salaSelecionada = document.getElementById('salaSelect').value;
+      if (salaSelecionada && salas[salaSelecionada]) {
+        salaAtual = salaSelecionada;
+        jogadores = salas[salaAtual].jogadores;
+        ranking = salas[salaAtual].ranking;
+        rodadas = salas[salaAtual].rodadas;
+        document.getElementById('home').classList.add('hidden');
+        document.getElementById('game').classList.remove('hidden');
+        document.getElementById('nomeSala').textContent = salaAtual;
+        atualizarListaJogadores();
+      }
+    }
+
+    function sairSala() {
+      salaAtual = null;
+      document.getElementById('game').classList.add('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('home').classList.remove('hidden');
+    }
+
+    function atualizarSelectSalas() {
+      const salaSelect = document.getElementById('salaSelect');
+      salaSelect.innerHTML = '';
+      for (let sala in salas) {
+        const option = document.createElement('option');
+        option.value = sala;
+        option.textContent = sala;
+        salaSelect.appendChild(option);
+      }
+    }
+
+    function adicionarJogador() {
+      const jogadorInput = document.getElementById('jogadorInput').value.trim();
+      if (jogadorInput && !jogadores.find(j => j.nome === jogadorInput)) {
+        jogadores.push({ nome: jogadorInput, pontos: 0 });
+        atualizarListaJogadores();
+      }
+    }
+
+    function atualizarListaJogadores() {
+      const listaJogadores = document.getElementById('jogadoresList');
+      listaJogadores.innerHTML = '';
+      jogadores.forEach(jogador => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = jogador.nome;
+        listaJogadores.appendChild(li);
+      });
+    }
+
+    function iniciarJogo() {
+      const dataInput = document.getElementById('dataInput').value;
+      if (dataInput && jogadores.length > 0) {
+        rodadas.push({ data: dataInput, pontuacoes: [] });
+        document.getElementById('game').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('rankingSala').textContent = salaAtual;
+        atualizarRodadaPontuacao();
+      } else {
+        alert('Selecione uma data e adicione pelo menos um jogador.');
+      }
+    }
+
+    function atualizarRodadaPontuacao() {
+      const rodadaPontuacaoDiv = document.getElementById('rodadaPontuacao');
+      rodadaPontuacaoDiv.innerHTML = '';
+      jogadores.forEach((jogador, index) => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label>${jogador.nome}</label>
+          <input type="number" min="0" value="0" onchange="atualizarPontuacao(${index}, this.value)">
+        `;
+        rodadaPontuacaoDiv.appendChild(div);
+      });
+    }
+
+    function atualizarPontuacao(index, pontos) {
+      jogadores[index].pontos += parseInt(pontos);
+      mostrarRanking();
+    }
+
+    function adicionarRodada() {
+      rodadas.push(jogadores.map(jogador => ({ nome: jogador.nome, pontos: jogador.pontos })));
+      atualizarRodadaPontuacao();
+      mostrarRanking();
+    }
+
+    function finalizarJogo() {
+      rodadas.push(jogadores.map(jogador => ({ nome: jogador.nome, pontos: jogador.pontos })));
+      salas[salaAtual].ranking = ranking;
+      alert('Jogo finalizado!');
+      mostrarRanking();
+    }
+
+    function mostrarRanking() {
+      ranking = jogadores.slice().sort((a, b) => b.pontos - a.pontos);
+      const rankingBody = document.getElementById('rankingBody');
+      rankingBody.innerHTML = '';
+      ranking.forEach((jogador, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${index + 1}</td><td>${jogador.nome}</td><td>${jogador.pontos}</td>`;
+        rankingBody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
