@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Séries, Filmes e Outros</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .button-group button {
+            flex: 1;
+            padding: 12px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .button-group button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .finalizado {
+            background-color: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciador de Séries, Filmes e Outros</h1>
+        <div class="form-group">
+            <label for="category">Categoria:</label>
+            <select id="category">
+                <option value="Série">Série</option>
+                <option value="Filme">Filme</option>
+                <option value="Anime">Anime</option>
+                <option value="Dorama">Dorama</option>
+                <option value="Desenho">Desenho</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Nome:</label>
+            <input type="text" id="name" placeholder="Digite o nome" required>
+        </div>
+
+        <div class="form-group">
+            <label for="season">Temporada:</label>
+            <input type="number" id="season" min="1" placeholder="Número da temporada">
+        </div>
+
+        <div class="form-group">
+            <label for="episode">Episódio Assistido:</label>
+            <input type="number" id="episode" min="1" placeholder="Número do episódio">
+        </div>
+
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status">
+                <option value="Não finalizado">Não finalizado</option>
+                <option value="Finalizado">Finalizado</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button onclick="addSeries()">Adicionar/Atualizar</button>
+            <button onclick="downloadFile()">Baixar Lista</button>
+        </div>
+
+        <table id="seriesTable">
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Nome</th>
+                    <th>Temporada</th>
+                    <th>Episódio</th>
+                    <th>Status</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log('Service Worker registrado com sucesso!'))
+                .catch(err => console.error('Falha ao registrar Service Worker:', err));
+        }
+
+        const seriesList = JSON.parse(localStorage.getItem('seriesList')) || {};
+
+        function saveData() {
+            localStorage.setItem('seriesList', JSON.stringify(seriesList));
+            displaySeries();
+        }
+
+        function addSeries() {
+            const category = document.getElementById('category').value;
+            const name = document.getElementById('name').value.trim();
+            const season = document.getElementById('season').value || '-';
+            const episode = document.getElementById('episode').value || '-';
+            const status = document.getElementById('status').value;
+            const date = new Date().toLocaleString();
+
+            if (!name) {
+                alert('Por favor, preencha o nome!');
+                return;
+            }
+
+            if (!seriesList[category]) seriesList[category] = {};
+
+            seriesList[category][name] = { season, episode, status, date };
+            saveData();
+
+            document.getElementById('name').value = '';
+            document.getElementById('season').value = '';
+            document.getElementById('episode').value = '';
+            document.getElementById('status').value = 'Não finalizado';
+        }
+
+        function displaySeries() {
+            const tableBody = document.querySelector('#seriesTable tbody');
+            tableBody.innerHTML = '';
+
+            for (const category in seriesList) {
+                for (const name in seriesList[category]) {
+                    const { season, episode, status, date } = seriesList[category][name];
+                    tableBody.innerHTML += `
+                        <tr class="${status === 'Finalizado' ? 'finalizado' : ''}">
+                            <td>${category}</td>
+                            <td>${name}</td>
+                            <td>${season}</td>
+                            <td>${episode}</td>
+                            <td>${status}</td>
+                            <td>${date}</td>
+                            <td>
+                                <button onclick="toggleStatus('${category}', '${name}')">Alterar Status</button>
+                                <button onclick="removeSeries('${category}', '${name}')">Remover</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        function toggleStatus(category, name) {
+            seriesList[category][name].status = seriesList[category][name].status === 'Finalizado' ? 'Não finalizado' : 'Finalizado';
+            seriesList[category][name].date = new Date().toLocaleString();
+            saveData();
+        }
+
+        function removeSeries(category, name) {
+            if (confirm(`Deseja remover '${name}' da categoria '${category}'?`)) {
+                delete seriesList[category][name];
+                if (Object.keys(seriesList[category]).length === 0) delete seriesList[category];
+                saveData();
+            }
+        }
+
+        function downloadFile() {
+            let content = 'Lista de Séries, Filmes e Outros\n===============================\n';
+
+            for (const category in seriesList) {
+                content += `\n[${category}]\n`;
+                for (const name in seriesList[category]) {
+                    const { season, episode, status, date } = seriesList[category][name];
+                    content += `Nome: ${name}\nTemporada: ${season}\nEpisódio: ${episode}\nStatus: ${status}\nÚltima atualização: ${date}\n---------------------------\n`;
+                }
+            }
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Lista_de_Serie.txt';
+            link.click();
+        }
+
+        displaySeries();
+    </script>
+</body>
+</html>
