@@ -41,6 +41,7 @@
         }
         .button-group {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
             margin-top: 10px;
         }
@@ -80,6 +81,7 @@
 <body>
     <div class="container">
         <h1>Gerenciador de Séries, Filmes e Outros</h1>
+
         <div class="form-group">
             <label for="category">Categoria:</label>
             <select id="category">
@@ -116,9 +118,7 @@
 
         <div class="button-group">
             <button onclick="addSeries()">Adicionar/Atualizar</button>
-            <button onclick="downloadFile()">Baixar Lista</button>
-            <input type="file" id="fileInput" accept=".txt" style="display:none" onchange="loadFile(event)">
-            <button onclick="document.getElementById('fileInput').click()">Carregar Lista</button>
+            <button onclick="loadFromGitHub()">Carregar do GitHub</button>
         </div>
 
         <table id="seriesTable">
@@ -138,17 +138,18 @@
     </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(() => console.log('Service Worker registrado com sucesso!'))
-                .catch(err => console.error('Falha ao registrar Service Worker:', err));
-        }
+        const owner = 'CRarly'; // Substitua pelo seu usuário do GitHub
+        const repo = 'Forms'; // Nome do seu repositório
+        const path = 'lista_de_serie.json'; // Nome do arquivo no GitHub
+        const token = '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'; // Substitua pelo seu token de acesso do GitHub
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
         const seriesList = JSON.parse(localStorage.getItem('seriesList')) || {};
 
         function saveData() {
             localStorage.setItem('seriesList', JSON.stringify(seriesList));
             displaySeries();
+            saveToGitHub(); // Salva automaticamente no GitHub sempre que os dados forem atualizados
         }
 
         function addSeries() {
@@ -165,7 +166,6 @@
             }
 
             if (!seriesList[category]) seriesList[category] = {};
-
             seriesList[category][name] = { season, episode, status, date };
             saveData();
 
@@ -210,65 +210,64 @@
             if (confirm(`Deseja remover '${name}' da categoria '${category}'?`)) {
                 delete seriesList[category][name];
                 if (Object.keys(seriesList[category]).length === 0) delete seriesList[category];
-                saveData();
+                saveData(); // Salva automaticamente no GitHub após remoção
             }
         }
 
-        function downloadFile() {
-            let content = 'Lista de Séries, Filmes e Outros\n===============================\n';
-
-            for (const category in seriesList) {
-                content += `\n[${category}]\n`;
-                for (const name in seriesList[category]) {
-                    const { season, episode, status, date } = seriesList[category][name];
-                    content += `Nome: ${name}\nTemporada: ${season}\nEpisódio: ${episode}\nStatus: ${status}\nÚltima atualização: ${date}\n---------------------------\n`;
-                }
-            }
-
-            const blob = new Blob([content], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'Lista_de_Serie.txt';
-            link.click();
-        }
-
-        function loadFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const lines = e.target.result.split('\n');
-                let currentCategory = '';
-
-                lines.forEach(line => {
-                    line = line.trim();
-
-                    if (line.startsWith('[') && line.endsWith(']')) {
-                        currentCategory = line.substring(1, line.length - 1);
-                        if (!seriesList[currentCategory]) seriesList[currentCategory] = {};
-                    } else if (line.startsWith('Nome:')) {
-                        const name = line.replace('Nome:', '').trim();
-                        const season = getValue(lines, 'Temporada:');
-                        const episode = getValue(lines, 'Episódio:');
-                        const status = getValue(lines, 'Status:');
-                        const date = getValue(lines, 'Última atualização:');
-
-                        seriesList[currentCategory][name] = { season, episode, status, date };
-                    }
+        async function loadFromGitHub() {
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: { 'Accept': 'application/vnd.github.v3.raw' }
                 });
 
-                saveData();
-                alert('Lista carregada com sucesso!');
-            };
+                if (!response.ok) throw new Error('Erro ao carregar arquivo do GitHub');
 
-            reader.readAsText(file);
+                const data = await response.json();
+                Object.assign(seriesList, data);
+                localStorage.setItem('seriesList', JSON.stringify(seriesList));
+                displaySeries();
+                console.log('Lista carregada do GitHub automaticamente!');
+            } catch (error) {
+                console.error('Erro ao carregar:', error);
+            }
         }
 
-        function getValue(lines, prefix) {
-            const line = lines.find(l => l.startsWith(prefix));
-            return line ? line.replace(prefix, '').trim() : '-';
+        async function saveToGitHub() {
+            try {
+                const getResponse = await fetch(apiUrl, {
+                    headers: { Authorization: `token ${token}` }
+                });
+
+                const { sha } = getResponse.ok ? await getResponse.json() : { sha: null };
+
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(seriesList, null, 4))));
+                const payload = {
+                    message: 'Atualizando lista_de_serie.json',
+                    content: content,
+                    sha: sha
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    console.log('Lista salva no GitHub com sucesso!');
+                } else {
+                    throw new Error('Falha ao salvar.');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+            }
         }
+
+        // Carregar automaticamente a lista ao iniciar o aplicativo
+        window.onload = loadFromGitHub;
 
         displaySeries();
     </script>
