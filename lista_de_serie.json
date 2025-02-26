@@ -1,1 +1,16 @@
-
+{
+    "Série": {
+        "AGENTES INTELIGENTES": {
+            "season": "2",
+            "episode": "1",
+            "status": "Não finalizado",
+            "date": "25/02/2025, 22:23:11"
+        },
+        "Curso de Nivelamento em AutoCAD básico": {
+            "season": "2",
+            "episode": "3",
+            "status": "Finalizado",
+            "date": "25/02/2025, 22:23:19"
+        }
+    }
+}
