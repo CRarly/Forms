@@ -117,6 +117,8 @@
         <div class="button-group">
             <button onclick="addSeries()">Adicionar/Atualizar</button>
             <button onclick="downloadFile()">Baixar Lista</button>
+            <input type="file" id="fileInput" accept=".txt" style="display:none" onchange="loadFile(event)">
+            <button onclick="document.getElementById('fileInput').click()">Carregar Lista</button>
         </div>
 
         <table id="seriesTable">
@@ -228,6 +230,44 @@
             link.href = URL.createObjectURL(blob);
             link.download = 'Lista_de_Serie.txt';
             link.click();
+        }
+
+        function loadFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split('\n');
+                let currentCategory = '';
+
+                lines.forEach(line => {
+                    line = line.trim();
+
+                    if (line.startsWith('[') && line.endsWith(']')) {
+                        currentCategory = line.substring(1, line.length - 1);
+                        if (!seriesList[currentCategory]) seriesList[currentCategory] = {};
+                    } else if (line.startsWith('Nome:')) {
+                        const name = line.replace('Nome:', '').trim();
+                        const season = getValue(lines, 'Temporada:');
+                        const episode = getValue(lines, 'Episódio:');
+                        const status = getValue(lines, 'Status:');
+                        const date = getValue(lines, 'Última atualização:');
+
+                        seriesList[currentCategory][name] = { season, episode, status, date };
+                    }
+                });
+
+                saveData();
+                alert('Lista carregada com sucesso!');
+            };
+
+            reader.readAsText(file);
+        }
+
+        function getValue(lines, prefix) {
+            const line = lines.find(l => l.startsWith(prefix));
+            return line ? line.replace(prefix, '').trim() : '-';
         }
 
         displaySeries();
